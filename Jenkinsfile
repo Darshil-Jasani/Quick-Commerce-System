@@ -4,36 +4,43 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                checkout scm
                 echo 'Code successfully retrieved from GitHub.'
             }
         }
 
         stage('Build Docker Images') {
             steps {
-                // Using the absolute path to docker on Windows to bypass environment variables
-                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker" compose build'
+                bat 'docker compose build'
             }
         }
 
         stage('Deploy with Docker Compose') {
             steps {
-                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker" compose up -d'
+                bat 'docker compose down'
+                bat 'docker compose up -d'
             }
         }
 
         stage('Smoke Test') {
             steps {
-                echo 'System deployed successfully. Checking service endpoints...'
-                bat 'curl -s http://localhost:8001/docs'
-                bat 'curl -s http://localhost:8002/docs'
-                bat 'curl -s http://localhost:8003/docs'
+                bat 'timeout /t 10'
+                bat 'curl -f http://localhost:8001/ || exit 1'
+                bat 'curl -f http://localhost:8002/ || exit 1'
+                bat 'curl -f http://localhost:8003/ || exit 1'
             }
         }
     }
 
     post {
+        success {
+            echo 'Build, deploy, and smoke test all succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed — check the stage logs above.'
+        }
         always {
-            echo 'Pipeline run completed.'
+            bat 'docker compose down'
         }
     }
 }
