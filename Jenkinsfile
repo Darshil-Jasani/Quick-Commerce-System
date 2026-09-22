@@ -10,13 +10,14 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                bat 'docker compose build'
+                // Using the absolute path to docker on Windows to bypass environment variables
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker" compose build'
             }
         }
 
         stage('Deploy with Docker Compose') {
             steps {
-                bat 'docker compose up -d'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker" compose up -d'
             }
         }
 
