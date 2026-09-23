@@ -24,7 +24,7 @@ pipeline {
 
         stage('Smoke Test') {
             steps {
-                bat 'timeout /t 10'
+                bat 'ping -n 11 127.0.0.1 > NUL'
                 bat 'curl -f http://localhost:8001/ || exit 1'
                 bat 'curl -f http://localhost:8002/ || exit 1'
                 bat 'curl -f http://localhost:8003/ || exit 1'
